@@ -1,0 +1,25 @@
+{
+  "name": "cypress-page-object-template",
+  "version": "1.0.0",
+  "description": "Cypress test automation template with Page Object pattern",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:headed": "cypress run --headed",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox",
+    "cy:run:edge": "cypress run --browser edge"
+  },
+  "keywords": [
+    "cypress",
+    "e2e",
+    "testing",
+    "page-object"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "cypress": "^13.6.0"
+  }
+}
+
