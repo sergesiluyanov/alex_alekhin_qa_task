@@ -8,12 +8,15 @@
 .
 ├── cypress/
 │   ├── e2e/                    # Тесты
+│   │   └── searchforactor.cy.js  # Тест поиска актора
 │   ├── fixtures/              # Тестовые данные
 │   │   └── example.json
 │   ├── pages/                 # Page Object классы
+│   │   └── publicWebsite.js   # Page Object для публичного сайта
 │   ├── support/               # Вспомогательные файлы
 │   │   ├── commands.js        # Кастомные команды
 │   │   └── e2e.js             # Конфигурация поддержки
+│   ├── downloads/             # Загруженные файлы (генерируются автоматически)
 │   ├── screenshots/           # Скриншоты (генерируются автоматически)
 │   └── videos/                # Видео тестов (генерируются автоматически)
 ├── cypress.config.js          # Конфигурация Cypress
@@ -32,127 +35,70 @@ npm install
 
 ### Открыть Cypress Test Runner (интерактивный режим)
 ```bash
-npm run cy:open
+npx cypress open
 ```
 
 ### Запустить все тесты в headless режиме
 ```bash
-npm run cy:run
-```
-
-### Запустить тесты в headed режиме (с браузером)
-```bash
-npm run cy:run:headed
-```
-
-### Запустить тесты в конкретном браузере
-```bash
-npm run cy:run:chrome
-npm run cy:run:firefox
-npm run cy:run:edge
-```
-
-## Page Object Pattern
-
-### Базовый класс (BasePage)
-
-`BasePage` содержит общие методы, которые могут использоваться на всех страницах:
-- `visit(path)` - открыть страницу
-- `click(selector)` - кликнуть по элементу
-- `type(selector, text)` - ввести текст
-- `shouldBeVisible(selector)` - проверить видимость
-- `shouldContainText(selector, text)` - проверить текст
-- И другие полезные методы
-
-### Создание нового Page Object
-
-1. Создайте новый файл в папке `cypress/pages/`, например `ProductPage.js`:
-
-```javascript
-import BasePage from './BasePage'
-
-class ProductPage extends BasePage {
-  // Определите селекторы как геттеры
-  get productTitle() {
-    return '.product-title'
-  }
-
-  get addToCartButton() {
-    return 'button.add-to-cart'
-  }
-
-  // Определите методы для взаимодействия со страницей
-  open(productId) {
-    this.visit(`/products/${productId}`)
-    return this
-  }
-
-  addToCart() {
-    this.click(this.addToCartButton)
-    return this
-  }
-
-  verifyProductTitle(expectedTitle) {
-    this.shouldContainText(this.productTitle, expectedTitle)
-    return this
-  }
-}
-
-export default ProductPage
-```
-
-2. Добавьте экспорт в `cypress/pages/index.js`:
-
-```javascript
-import ProductPage from './ProductPage'
-
-export {
-  // ... другие экспорты
-  ProductPage
-}
-```
-
-3. Используйте в тестах:
-
-```javascript
-import { ProductPage } from '../pages'
-
-describe('Product Page', () => {
-  it('should add product to cart', () => {
-    const productPage = new ProductPage()
-    productPage
-      .open(123)
-      .verifyProductTitle('Test Product')
-      .addToCart()
-  })
-})
+npx cypress run
 ```
 
 ## Кастомные команды
 
-Кастомные команды определены в `cypress/support/commands.js`. Примеры:
+Кастомные команды определены в `cypress/support/commands.js`:
 
-- `cy.login(username, password)` - выполнить логин через API
+### `cy.blockAnalytics()`
 
-Вы можете добавить свои команды в этот файл.
+Блокирует запросы к аналитическим сервисам (Sentry, Segment, CookiePro и другим). Это ускоряет выполнение тестов и исключает зависимости от внешних сервисов.
+
+**Использование**:
+```javascript
+beforeEach(() => {
+  cy.blockAnalytics()
+})
+```
+
+### `cy.login(username, password)`
+
+Выполняет логин через API и сохраняет токен в localStorage.
+
+**Использование**:
+```javascript
+cy.login('username', 'password')
+```
+
+Вы можете добавить свои команды в файл `cypress/support/commands.js`.
 
 ## Конфигурация
 
 Основные настройки находятся в `cypress.config.js`:
 
-- `baseUrl` - базовый URL приложения
-- `viewportWidth/viewportHeight` - размер окна браузера
-- `defaultCommandTimeout` - таймаут для команд
+- `viewportWidth/viewportHeight` - размер окна браузера (1280x720)
+- `defaultCommandTimeout` - таймаут для команд (10000ms)
+- `requestTimeout` - таймаут для запросов (10000ms)
+- `pageLoadTimeout` - таймаут загрузки страницы (30000ms)
 - `specPattern` - паттерн для поиска тестов
+- `video` - запись видео тестов (включена)
+- `screenshotOnRunFailure` - скриншоты при ошибках (включены)
+
+## Обработка ошибок
+
+В `cypress/support/e2e.js` настроена обработка необработанных исключений, чтобы тесты не падали из-за ошибок React и других библиотек:
+
+```javascript
+Cypress.on('uncaught:exception', (err, runnable) => {
+  return false
+})
+```
 
 ## Лучшие практики
 
 1. **Используйте Page Object** - инкапсулируйте логику работы со страницами в отдельные классы
-2. **Используйте геттеры для селекторов** - это упрощает поддержку и переиспользование
-3. **Методы должны возвращать `this`** - для поддержки цепочки вызовов (method chaining)
-4. **Именуйте тесты понятно** - используйте описательные названия `it('should ...')`
-5. **Используйте `beforeEach`** - для подготовки данных перед каждым тестом
-6. **Разделяйте тесты по функциональности** - создавайте отдельные файлы для разных страниц/функций
+2. **Методы должны возвращать `this`** - для поддержки цепочки вызовов (method chaining)
+3. **Именуйте тесты понятно** - используйте описательные названия `it('should ...')`
+4. **Используйте `beforeEach`** - для подготовки данных перед каждым тестом (например, блокировка аналитики)
+5. **Разделяйте тесты по функциональности** - создавайте отдельные файлы для разных страниц/функций
+6. **Блокируйте аналитику** - используйте `cy.blockAnalytics()` для ускорения тестов
 
 ## Дополнительные ресурсы
 
@@ -163,4 +109,3 @@ describe('Product Page', () => {
 ## Лицензия
 
 MIT
-
