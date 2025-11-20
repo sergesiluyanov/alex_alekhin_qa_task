@@ -3,9 +3,10 @@ class PublicWebsitePage {
   searchForActor() {
     cy.visit('https://apify.com/')
     cy.get('[data-testid="react-typed"]').click()
-    cy.get('[data-testid="react-typed"] input, [data-testid="react-typed"]').first().clear().type('Google Maps Scraper')
-
+    cy.get('input.HomepageHeroSection-input').clear().type('Google Maps Scraper')
+    cy.get('button.HomepageHeroSection-searchButton').click()
+    return this
   }
 }
 
-export default PublicWebsitePage
+export default new PublicWebsitePage();

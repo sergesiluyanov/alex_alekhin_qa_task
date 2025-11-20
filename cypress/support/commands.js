@@ -26,3 +26,22 @@ Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
   return originalFn(element, text, options)
 })
 
+// Блокировка аналитических запросов
+Cypress.Commands.add('blockAnalytics', () => {
+  // Блокировать Sentry
+  cy.intercept('GET', '**/sentry.io/**', { statusCode: 200, body: {} }).as('sentry')
+  cy.intercept('POST', '**/sentry.io/**', { statusCode: 200, body: {} }).as('sentryPost')
+  
+  // Блокировать Segment
+  cy.intercept('GET', '**/cdn.segment.com/**', { statusCode: 200, body: {} }).as('segment')
+  cy.intercept('POST', '**/cdn.segment.com/**', { statusCode: 200, body: {} }).as('segmentPost')
+  
+  // Блокировать CookiePro
+  cy.intercept('GET', '**/cookie-cdn.cookiepro.com/**', { statusCode: 200, body: {} }).as('cookiepro')
+  cy.intercept('POST', '**/cookie-cdn.cookiepro.com/**', { statusCode: 200, body: {} }).as('cookieproPost')
+  
+  // Блокировать другие аналитические сервисы
+  cy.intercept('GET', '**/analytics/**', { statusCode: 200, body: {} }).as('analytics')
+  cy.intercept('POST', '**/analytics/**', { statusCode: 200, body: {} }).as('analyticsPost')
+})
+
