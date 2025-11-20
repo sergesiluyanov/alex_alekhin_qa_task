@@ -1,16 +1,14 @@
-// Пример базового теста без использования Page Object
-// Для сравнения с подходом Page Object
+import PublicWebsitePage from '../pages/publicWebsite'
 
-describe('Example Test Suite', () => {
-  it('should visit example page', () => {
-    cy.visit('/')
-    cy.contains('Welcome')
+describe('search for actor', () => {
+  let publicWebsitePage
+
+  beforeEach(() => {
+    publicWebsitePage = new PublicWebsitePage()
   })
 
-  it('should interact with elements', () => {
-    cy.visit('/')
-    cy.get('button').click()
-    cy.get('.result').should('be.visible')
+  it('should visit public website and search for actor', () => {
+    publicWebsitePage.searchForActor().should('have.value', 'Google Maps Scraper')
   })
 })
 
