@@ -35,12 +35,62 @@ npm install
 
 ### Открыть Cypress Test Runner (интерактивный режим)
 ```bash
+npm run cy:open
+# или
 npx cypress open
 ```
 
 ### Запустить все тесты в headless режиме
 ```bash
+npm run cy:run
+# или
 npx cypress run
+```
+
+### Запустить тесты в headed режиме (с браузером)
+```bash
+npm run cy:run:headed
+```
+
+### Запустить тесты в конкретном браузере
+```bash
+npm run cy:run:chrome
+npm run cy:run:firefox
+npm run cy:run:edge
+```
+
+## Page Object Pattern
+
+В проекте используется Page Object паттерн. Пример реализации:
+
+**`cypress/pages/publicWebsite.js`**:
+```javascript
+class PublicWebsitePage {
+  searchForActor() {
+    cy.visit('https://apify.com/')
+    cy.get('[data-testid="react-typed"]').click()
+    cy.get('input.HomepageHeroSection-input').clear().type('Google Maps Scraper')
+    cy.get('button.HomepageHeroSection-searchButton').click()
+    return this
+  }
+}
+
+export default new PublicWebsitePage()
+```
+
+**Использование в тесте**:
+```javascript
+import PublicWebsitePage from '../pages/publicWebsite'
+
+describe('search for actor', () => {
+  beforeEach(() => {
+    cy.blockAnalytics()
+  })
+
+  it('should visit public website and search for actor', () => {
+    PublicWebsitePage.searchForActor()
+  })
+})
 ```
 
 ## Кастомные команды
