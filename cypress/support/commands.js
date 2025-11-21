@@ -28,13 +28,20 @@ Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
 
 Cypress.Commands.add('blockAllRequests', () => {
   cy.intercept('*', (req) => {
-    const allowedDomains = ['https://console.apify.com/', 'https://apify.com/', 'https://console-backend.apify.com/public/authentication/resume', 'https://console-backend.apify.com/public/authentication/sign-up-options', 'https://console-backend.apify.com/public/authentication/login-with-password', 'https://cdn-cms.apify.com', 'https://ow0o5i3qo7-dsn.algolia.net', 'https://images.apifyusercontent.com'];
+    const allowedDomains = ['https://console.apify.com/', 'https://apify.com/', 'https://console-backend.apify.com/public/authentication/resume', 'https://console-backend.apify.com/public/authentication/sign-up-options', 'https://console-backend.apify.com/public/authentication/login-with-password', 'https://cdn-cms.apify.com', 'https://ow0o5i3qo7-dsn.algolia.net', 'https://images.apifyusercontent.com', 'https://console-backend.apify.com/users/profile/me', 'https://console-backend.apify.com', 'https://cdn.apify.com', 'https://status.apify.com', 'https://api.apify.com', 'https://cdn.growthbook.io', 'https://o272833.ingest.us.sentry.io', 'https://cdn.growthbook.io/sub/', 'https://api.flows-cloud.com', 'https://cms.apify.com/api', 'https://cdn.jsdelivr.net'];
 
     if (!allowedDomains.some(domain => req.url.includes(domain))) {
       req.destroy();
     }
   });
 });
+
+// Read downloaded dataset file
+Cypress.Commands.add('readDownloadedDataset', () => {
+  return cy.task('findDownloadedFile', 'cypress/downloads/dataset_cheerio-scraper_*.json').then((filePath) => {
+    return cy.readFile(filePath, { timeout: 30000 })
+  })
+})
 
 // Login to Apify Console with session saving
 Cypress.Commands.add('loginToConsole', (email, password) => {

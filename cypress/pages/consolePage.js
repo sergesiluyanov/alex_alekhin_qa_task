@@ -1,92 +1,77 @@
 class ConsolePage {
-  verifyOnConsolePage() {
-    cy.url().should('include', 'console.apify.com')
+  /**
+   * Wait for configuration to load
+   */
+  waitForConfiguration() {
+    cy.contains('Basic configuration', { timeout: 30000 })
+      .should('be.visible')
     return this
   }
 
   /**
-   * wait for page load
+   * Start the actor
    */
-  waitForPageLoad() {
-    // check Go to Console button exists (may be hidden in mobile menu)
-    cy.get('a[data-tracking-go-to-app-sign-in], a[aria-label="Go to Console"]', { timeout: 30000 })
-      .contains('Go to Console', { matchCase: false })
-      .should('exist')
+  startActor() {
+    cy.get('#onboarding-run-actor', { timeout: 10000 })
+      .should('be.visible')
+      .click()
     return this
   }
 
   /**
-   * update input data  
-   * @param {Object} inputData - объект с данными для input
+   * Wait for actor to complete data collection
    */
-  updateActorInput(inputData) {
-    // Пример: обновление startUrls для Cheerio Scraper
-    // Нужно будет найти конкретные селекторы для input полей
-    // cy.get('[data-test="input-field"]').clear().type(inputData.startUrls)
-    
-    // Для Cheerio Scraper обычно нужно обновить startUrls
-    if (inputData.startUrls) {
-      cy.get('textarea, input').contains('startUrls').parent().find('textarea, input').first()
-        .clear().type(JSON.stringify(inputData.startUrls), { parseSpecialCharSequences: false })
-    }
-    
-    // Можно добавить другие поля по необходимости
+  waitForActorToComplete() {
+    cy.contains('The Actor is getting your data...', { timeout: 120000 })
+      .should('not.exist')
     return this
   }
 
   /**
-   * Обновить минимальный input для теста (в пределах free лимитов)
+   * Export the results
    */
-  setMinimalInput() {
-    const minimalInput = {
-      startUrls: ['https://crawlee.dev'],
-      maxPagesPerCrawl: 3
-    }
-    this.updateActorInput(minimalInput)
+  exportResults() {
+    cy.get('button#data-tracking-output-export', { timeout: 60000 })
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click()
     return this
   }
 
   /**
-   * Запустить актора
+   * Download the results
    */
-  runActor() {
-    // Найти и кликнуть кнопку запуска
-    cy.get('button').contains('Start', { matchCase: false }).click()
-    // Или использовать data-test атрибут, если есть
-    // cy.get('[data-test="start-actor-button"]').click()
+  downloadResults() {
+    cy.contains('button', 'Download', { matchCase: false, timeout: 30000 })
+      .should('be.visible')
+      .click()
     return this
   }
 
   /**
-   * Дождаться завершения запуска актора
+   * Verify downloaded dataset schema
+   * Checks that the downloaded JSON file matches the expected schema
    */
-  waitForRunToComplete(timeout = 120000) {
-    // wait for status to change to success
-    cy.contains('Succeeded', { timeout, matchCase: false }).should('be.visible')
+  verifyDatasetSchema() {
+    // Read the downloaded file using custom command
+    cy.readDownloadedDataset().then((data) => {
+      // Verify it's an array
+      expect(data).to.be.an('array')
+      expect(data.length).to.be.greaterThan(0)
+
+      // Verify schema for each item
+      data.forEach((item, index) => {
+        expect(item, `Item ${index} should have url`).to.have.property('url')
+        expect(item, `Item ${index} should have pageTitle`).to.have.property('pageTitle')
+        expect(item.url, `Item ${index} url should be a string`).to.be.a('string')
+        expect(item.pageTitle, `Item ${index} pageTitle should be a string`).to.be.a('string')
+        expect(item.url, `Item ${index} url should not be empty`).to.not.be.empty
+        expect(item.pageTitle, `Item ${index} pageTitle should not be empty`).to.not.be.empty
+      })
+    })
     return this
   }
 
-  /**
-   * Verify dataset has items inside
-   */
-  verifyDatasetHasItems(minItems = 1) {
-    // Открыть dataset, если нужно
-    cy.contains('Dataset', { matchCase: false }).click()
-    
-    // Проверить наличие элементов в dataset
-    cy.get('[data-test="dataset-item"], .dataset-item, tbody tr', { timeout: 10000 })
-      .should('have.length.at.least', minItems)
-    
-    return this
-  }
-
-  /**
-   * get dataset items count
-   */
-  getDatasetItemCount() {
-    // Найти элемент с количеством items
-    return cy.get('[data-test="dataset-count"], .dataset-count').invoke('text')
-  }
 }
 
 export default new ConsolePage()

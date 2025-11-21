@@ -27,6 +27,37 @@ module.exports = defineConfig({
       config.env.APIFY_EMAIL = process.env.APIFY_EMAIL
       config.env.APIFY_PASSWORD = process.env.APIFY_PASSWORD
       
+      // Task для поиска скачанного файла
+      const fs = require('fs')
+      const path = require('path')
+      
+      on('task', {
+        findDownloadedFile(pattern) {
+          const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
+          
+          // Проверяем существование директории
+          if (!fs.existsSync(downloadsDir)) {
+            throw new Error(`Downloads directory does not exist: ${downloadsDir}`)
+          }
+          
+          // Читаем все файлы в директории и фильтруем по паттерну
+          const files = fs.readdirSync(downloadsDir)
+            .filter(file => file.startsWith('dataset_cheerio-scraper_') && file.endsWith('.json'))
+            .map(file => path.join(downloadsDir, file))
+          
+          if (files.length === 0) {
+            throw new Error('No dataset files found in downloads directory')
+          }
+          
+          // Возвращаем самый новый файл
+          const sortedFiles = files
+            .map(file => ({ file, mtime: fs.statSync(file).mtime }))
+            .sort((a, b) => b.mtime - a.mtime)
+          
+          return sortedFiles[0].file
+        }
+      })
+      
       return config
     },
   },
