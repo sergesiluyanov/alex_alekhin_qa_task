@@ -15,7 +15,7 @@ describe('Cheerio Scraper E2E Flow', () => {
       .visit()
       .searchForActor(actorName)
       .openActorCard('Cheerio Scraper')
-      .openInConsole() // Явный переход на console.apify.com
+      .openInConsole() // redirect to console.apify.com
     
     // Apify Console 
     ConsolePage

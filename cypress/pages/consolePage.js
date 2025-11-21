@@ -1,14 +1,11 @@
 class ConsolePage {
-  /**
-   * Проверить, что мы находимся на странице консоли
-   */
   verifyOnConsolePage() {
     cy.url().should('include', 'console.apify.com')
     return this
   }
 
   /**
-   * Дождаться загрузки страницы консоли
+   * wait for page load
    */
   waitForPageLoad() {
     cy.url().should('include', 'console.apify.com')
@@ -63,15 +60,13 @@ class ConsolePage {
    * Дождаться завершения запуска актора
    */
   waitForRunToComplete(timeout = 120000) {
-    // Ждем, пока статус изменится на SUCCEEDED или FAILED
+    // wait for status to change to success
     cy.contains('Succeeded', { timeout, matchCase: false }).should('be.visible')
-    // Или можно использовать более специфичный селектор
-    // cy.get('[data-test="run-status"]').should('contain', 'Succeeded')
     return this
   }
 
   /**
-   * Проверить, что dataset содержит элементы
+   * Verify dataset has items inside
    */
   verifyDatasetHasItems(minItems = 1) {
     // Открыть dataset, если нужно
@@ -85,7 +80,7 @@ class ConsolePage {
   }
 
   /**
-   * Получить количество элементов в dataset
+   * get dataset items count
    */
   getDatasetItemCount() {
     // Найти элемент с количеством items
