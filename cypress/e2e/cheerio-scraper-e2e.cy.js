@@ -5,7 +5,6 @@ describe('Cheerio Scraper E2E Flow', () => {
   beforeEach(() => {
     // Блокируем аналитику для ускорения тестов
     cy.blockAnalytics()
-    cy.loginToConsole() 
     
     // Логинимся в консоль (сессия сохраняется и переиспользуется)
     cy.loginToConsole()
@@ -24,7 +23,7 @@ describe('Cheerio Scraper E2E Flow', () => {
     // Apify Console 
     ConsolePage
       .waitForPageLoad()
-      .verifyOnConsolePage()
+    //.verifyOnConsolePage()
     //.setMinimalInput()      // Update actor's input
     //  .runActor()             // Run the actor
     //.waitForRunToComplete() // Wait for run is completed

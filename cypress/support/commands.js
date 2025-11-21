@@ -26,26 +26,44 @@ Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
   return originalFn(element, text, options)
 })
 
-// Блокировка аналитических запросов
+// block analytics
 Cypress.Commands.add('blockAnalytics', () => {
-  // Блокировать Sentry
-  cy.intercept('GET', '**/sentry.io/**', { statusCode: 200, body: {} }).as('sentry')
-  cy.intercept('POST', '**/sentry.io/**', { statusCode: 200, body: {} }).as('sentryPost')
+  // block Sentry
+  cy.intercept({ method: 'GET', url: '**/sentry.io/**' }, { statusCode: 200, body: {} }).as('sentry')
+  cy.intercept({ method: 'POST', url: '**/sentry.io/**' }, { statusCode: 200, body: {} }).as('sentryPost')
   
-  // Блокировать Segment
-  cy.intercept('GET', '**/cdn.segment.com/**', { statusCode: 200, body: {} }).as('segment')
-  cy.intercept('POST', '**/cdn.segment.com/**', { statusCode: 200, body: {} }).as('segmentPost')
+  // block Segment
+  cy.intercept({ method: 'GET', url: '**/cdn.segment.com/**' }, { statusCode: 200, body: {} }).as('segment')
+  cy.intercept({ method: 'POST', url: '**/cdn.segment.com/**' }, { statusCode: 200, body: {} }).as('segmentPost')
   
-  // Блокировать CookiePro
-  cy.intercept('GET', '**/cookie-cdn.cookiepro.com/**', { statusCode: 200, body: {} }).as('cookiepro')
-  cy.intercept('POST', '**/cookie-cdn.cookiepro.com/**', { statusCode: 200, body: {} }).as('cookieproPost')
+  // block CookiePro
+  cy.intercept({ method: 'GET', url: '**/cookie-cdn.cookiepro.com/**' }, { statusCode: 200, body: {} }).as('cookiepro')
+  cy.intercept({ method: 'POST', url: '**/cookie-cdn.cookiepro.com/**' }, { statusCode: 200, body: {} }).as('cookieproPost')
   
-  // Блокировать другие аналитические сервисы
-  cy.intercept('GET', '**/analytics/**', { statusCode: 200, body: {} }).as('analytics')
-  cy.intercept('POST', '**/analytics/**', { statusCode: 200, body: {} }).as('analyticsPost')
+  // block Google Analytics / Tag Manager
+  cy.intercept({ method: 'GET', url: '**/google.com/ccm/**' }, { statusCode: 200, body: {} }).as('googleAnalytics')
+  cy.intercept({ method: 'POST', url: '**/google.com/ccm/**' }, { statusCode: 200, body: {} }).as('googleAnalyticsPost')
+  cy.intercept({ method: 'GET', url: '**/www.google.com/ccm/**' }, { statusCode: 200, body: {} }).as('googleAnalyticsWWW')
+  cy.intercept({ method: 'POST', url: '**/www.google.com/ccm/**' }, { statusCode: 200, body: {} }).as('googleAnalyticsWWWPost')
+  
+  // block GrowthBook
+  cy.intercept({ method: 'GET', url: '**/cdn.growthbook.io/**' }, { statusCode: 200, body: {} }).as('growthbook')
+  cy.intercept({ method: 'POST', url: '**/cdn.growthbook.io/**' }, { statusCode: 200, body: {} }).as('growthbookPost')
+  // Также блокируем конкретно /api endpoint
+  cy.intercept({ method: 'GET', url: '**/cdn.growthbook.io/api/**' }, { statusCode: 200, body: {} }).as('growthbookApi')
+  cy.intercept({ method: 'POST', url: '**/cdn.growthbook.io/api/**' }, { statusCode: 200, body: {} }).as('growthbookApiPost')
+  
+  // block Microsoft Clarity
+  cy.intercept({ method: 'GET', url: '**/b.clarity.ms/**' }, { statusCode: 200, body: {} }).as('clarity')
+  cy.intercept({ method: 'POST', url: '**/b.clarity.ms/**' }, { statusCode: 200, body: {} }).as('clarityPost')
+  cy.intercept({ method: 'HEAD', url: '**/b.clarity.ms/**' }, { statusCode: 200, body: {} }).as('clarityHead')
+  
+  // block other analytics
+  cy.intercept({ method: 'GET', url: '**/analytics/**' }, { statusCode: 200, body: {} }).as('analytics')
+  cy.intercept({ method: 'POST', url: '**/analytics/**' }, { statusCode: 200, body: {} }).as('analyticsPost')
 })
 
-// Логин в Apify Console с сохранением сессии
+// Login to Apify Console with session saving
 Cypress.Commands.add('loginToConsole', (email, password) => {
   const loginEmail = email || Cypress.env('APIFY_EMAIL')
   const loginPassword = password || Cypress.env('APIFY_PASSWORD')
@@ -54,53 +72,65 @@ Cypress.Commands.add('loginToConsole', (email, password) => {
     throw new Error('Email and password are required. Set APIFY_EMAIL and APIFY_PASSWORD in .env file or pass as parameters.')
   }
   
-  // Используем cy.session() для сохранения состояния логина
-  // Сессия будет переиспользоваться между тестами
+  // use cy.session() to save login state
+  // session will be reused between tests
   cy.session(
     'apify-console-login',
     () => {
-      // Выполняем логин только если сессия не существует
-      cy.visit('https://console.apify.com/')
+      // perform login only if session does not exist
+      // Используем onLoad callback чтобы не ждать полной загрузки всех ресурсов
+      cy.visit('https://console.apify.com/', {
+        timeout: 60000,
+        onBeforeLoad: (win) => {
+          // Можно добавить логику перед загрузкой
+        },
+        onLoad: (win) => {
+          // Страница загружена, но не ждем всех ресурсов
+        }
+      })
       
-      // Проверяем, не залогинены ли мы уже
+      // Ждем появления body вместо полной загрузки
+      cy.get('body', { timeout: 30000 }).should('be.visible')
+      
+      // check if user is already logged in
       cy.url().then((url) => {
         if (!url.includes('/login') && !url.includes('/sign-in')) {
-          // Возможно, уже залогинены - проверяем наличие элементов пользователя
+          // check for user elements
           cy.get('body').then(($body) => {
             if ($body.find('[data-test="user-menu"], [data-test="profile-button"]').length > 0) {
-              // Уже залогинены, пропускаем
+              // already logged in, skip
               return
             }
           })
         }
       })
       
-      // Шаг 1: Вводим email
+      // step 1: enter email
       cy.get('input[data-test="email"], #email', { timeout: 10000 })
         .should('be.visible')
         .clear()
         .type(loginEmail)
       
-      // Шаг 2: Кликаем кнопку Next
+      // step 2: click Next button
       cy.get('button').contains('Next', { matchCase: false }).click()
       
-      // Шаг 3: Вводим пароль (ждем появления поля)
+      // step 3: enter password (wait for field to appear)
       cy.get('input[data-test="password"], #password', { timeout: 10000 })
         .should('be.visible')
         .clear()
         .type(loginPassword, { log: false })
       
-      // Шаг 4: Кликаем кнопку Log in
+      // step 4: click Log in button
       cy.get('button#data-tracking-sign-in-direct, button').contains('Log in', { matchCase: false }).click()
       
-      // Ждем успешного логина - проверяем, что мы на странице консоли
+      // wait for successful login - check if we are on console page
       cy.url({ timeout: 15000 }).should('include', 'console.apify.com')
       cy.url().should('not.include', '/login')
       cy.url().should('not.include', '/sign-in')
     },
     {
       validate: () => {
-        // Проверяем, что сессия еще валидна
+          // check if session is still valid
         cy.visit('https://console.apify.com/')
         cy.url().should('include', 'console.apify.com')
         cy.url().should('not.include', '/login')

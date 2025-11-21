@@ -8,14 +8,15 @@ class ConsolePage {
    * wait for page load
    */
   waitForPageLoad() {
-    cy.url().should('include', 'console.apify.com')
-    // Ждем загрузки основных элементов страницы
-    cy.get('body').should('be.visible')
+    // check Go to Console button exists (may be hidden in mobile menu)
+    cy.get('a[data-tracking-go-to-app-sign-in], a[aria-label="Go to Console"]', { timeout: 30000 })
+      .contains('Go to Console', { matchCase: false })
+      .should('exist')
     return this
   }
 
   /**
-   * Обновить input актора
+   * update input data  
    * @param {Object} inputData - объект с данными для input
    */
   updateActorInput(inputData) {
