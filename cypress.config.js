@@ -15,6 +15,10 @@ module.exports = defineConfig({
     fixturesFolder: 'cypress/fixtures',
     screenshotsFolder: 'cypress/screenshots',
     videosFolder: 'cypress/videos',
+    // Важно: Cypress может работать с переходами между доменами через редирект
+    // При прямом переходе между разными доменами может потребоваться chromeWebSecurity: false
+    // Но в нашем случае переход происходит через редирект, поэтому должно работать
+    chromeWebSecurity: true,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
