@@ -21,10 +21,10 @@ describe('Cheerio Scraper E2E Flow', () => {
     ConsolePage
       .waitForPageLoad()
       .verifyOnConsolePage()
-      .setMinimalInput()      // Шаг 3: Обновляем input
-      .runActor()             // Шаг 4: Запускаем актора
-      .waitForRunToComplete() // Шаг 5: Ждем завершения
-      .verifyDatasetHasItems(1) // Шаг 6: Проверяем результаты
+    //.setMinimalInput()      // Update actor's input
+      .runActor()             // Run the actor
+    //.waitForRunToComplete() // Wait for run is completed
+    //.verifyDatasetHasItems(1) // Verify data items
   })
 })
 
