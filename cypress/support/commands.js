@@ -45,3 +45,68 @@ Cypress.Commands.add('blockAnalytics', () => {
   cy.intercept('POST', '**/analytics/**', { statusCode: 200, body: {} }).as('analyticsPost')
 })
 
+// Логин в Apify Console с сохранением сессии
+Cypress.Commands.add('loginToConsole', (email, password) => {
+  const loginEmail = email || Cypress.env('APIFY_EMAIL')
+  const loginPassword = password || Cypress.env('APIFY_PASSWORD')
+  
+  if (!loginEmail || !loginPassword) {
+    throw new Error('Email and password are required. Set APIFY_EMAIL and APIFY_PASSWORD in .env file or pass as parameters.')
+  }
+  
+  // Используем cy.session() для сохранения состояния логина
+  // Сессия будет переиспользоваться между тестами
+  cy.session(
+    'apify-console-login',
+    () => {
+      // Выполняем логин только если сессия не существует
+      cy.visit('https://console.apify.com/')
+      
+      // Проверяем, не залогинены ли мы уже
+      cy.url().then((url) => {
+        if (!url.includes('/login') && !url.includes('/sign-in')) {
+          // Возможно, уже залогинены - проверяем наличие элементов пользователя
+          cy.get('body').then(($body) => {
+            if ($body.find('[data-test="user-menu"], [data-test="profile-button"]').length > 0) {
+              // Уже залогинены, пропускаем
+              return
+            }
+          })
+        }
+      })
+      
+      // Шаг 1: Вводим email
+      cy.get('input[data-test="email"], #email', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(loginEmail)
+      
+      // Шаг 2: Кликаем кнопку Next
+      cy.get('button').contains('Next', { matchCase: false }).click()
+      
+      // Шаг 3: Вводим пароль (ждем появления поля)
+      cy.get('input[data-test="password"], #password', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(loginPassword, { log: false })
+      
+      // Шаг 4: Кликаем кнопку Log in
+      cy.get('button#data-tracking-sign-in-direct, button').contains('Log in', { matchCase: false }).click()
+      
+      // Ждем успешного логина - проверяем, что мы на странице консоли
+      cy.url({ timeout: 15000 }).should('include', 'console.apify.com')
+      cy.url().should('not.include', '/login')
+      cy.url().should('not.include', '/sign-in')
+    },
+    {
+      validate: () => {
+        // Проверяем, что сессия еще валидна
+        cy.visit('https://console.apify.com/')
+        cy.url().should('include', 'console.apify.com')
+        cy.url().should('not.include', '/login')
+        cy.url().should('not.include', '/sign-in')
+      }
+    }
+  )
+})
+

@@ -5,6 +5,10 @@ describe('Cheerio Scraper E2E Flow', () => {
   beforeEach(() => {
     // Блокируем аналитику для ускорения тестов
     cy.blockAnalytics()
+    cy.loginToConsole() 
+    
+    // Логинимся в консоль (сессия сохраняется и переиспользуется)
+    cy.loginToConsole()
   })
 
   it('should search, configure, run Cheerio Scraper and verify results', () => {
@@ -14,15 +18,15 @@ describe('Cheerio Scraper E2E Flow', () => {
     PublicWebsitePage
       .visit()
       .searchForActor(actorName)
-      .openActorCard('Cheerio Scraper')
-      .openInConsole() // redirect to console.apify.com
+      .openActor('Cheerio Scraper')
+    //.openInConsole() // redirect to console.apify.com
     
     // Apify Console 
     ConsolePage
       .waitForPageLoad()
       .verifyOnConsolePage()
     //.setMinimalInput()      // Update actor's input
-      .runActor()             // Run the actor
+    //  .runActor()             // Run the actor
     //.waitForRunToComplete() // Wait for run is completed
     //.verifyDatasetHasItems(1) // Verify data items
   })

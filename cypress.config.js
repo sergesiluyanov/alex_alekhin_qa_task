@@ -20,7 +20,14 @@ module.exports = defineConfig({
     // Но в нашем случае переход происходит через редирект, поэтому должно работать
     chromeWebSecurity: true,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      // Загружаем переменные окружения из .env файла
+      require('dotenv').config()
+      
+      // Передаем env переменные в Cypress
+      config.env.APIFY_EMAIL = process.env.APIFY_EMAIL
+      config.env.APIFY_PASSWORD = process.env.APIFY_PASSWORD
+      
+      return config
     },
   },
 })
