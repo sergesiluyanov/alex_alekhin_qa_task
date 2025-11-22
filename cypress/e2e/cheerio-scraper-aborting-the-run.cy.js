@@ -3,10 +3,10 @@ import ConsolePage from '../pages/consolePage'
 
 describe('Cheerio Scraper E2E Flow', () => {
   beforeEach(() => {
-    // Блокируем аналитику для ускорения тестов
+    // block analytics requests for faster tests
     cy.blockAllRequests()
     
-    // Логинимся в консоль (сессия сохраняется и переиспользуется)
+    // login to console (session is saved and reused)
     cy.loginToConsole()
   })
 
