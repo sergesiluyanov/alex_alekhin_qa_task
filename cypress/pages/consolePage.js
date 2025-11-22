@@ -19,6 +19,36 @@ class ConsolePage {
   }
 
   /**
+   * Abort the running actor
+   */
+  abortRun() {
+    cy.contains('button', 'Abort', { matchCase: false, timeout: 30000 })
+      .should('be.visible')
+      .click()
+    return this
+  }
+
+  /**
+   * Verify abort confirmation message appears
+   */
+  verifyAbortConfirmation() {
+    cy.contains('Actor run was aborted', { timeout: 30000 })
+      .should('be.visible')
+    return this
+  }
+
+  /**
+   * Verify abort message appears
+   */
+  verifyAbortMessage() {
+    cy.contains('No results', { timeout: 30000 })
+      .should('be.visible')
+    cy.contains('The Actor finished with no results. Check the log for more information.', { timeout: 30000 })
+      .should('be.visible')
+    return this
+  }
+
+  /**
    * Wait for actor to complete data collection
    */
   waitForActorToComplete() {

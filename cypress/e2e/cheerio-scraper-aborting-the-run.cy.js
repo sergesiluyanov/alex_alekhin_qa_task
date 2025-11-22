@@ -10,22 +10,21 @@ describe('Cheerio Scraper E2E Flow', () => {
     cy.loginToConsole()
   })
 
-  it('should search, configure, run Cheerio Scraper and verify results', () => {
+  it('should search, configure, run and abort Cheerio Scraper', () => {
     // Search for actor on Public Website
     PublicWebsitePage
       .visit()
-      .searchForActor() // uses default: Cheerio Scraper Actor
-      .openActor() // uses default: Cheerio Scraper
-      .openInConsole() // redirect to console.apify.com
+      .searchForActor()
+      .openActor()
+      .openInConsole()
     
     // Apify Console
     ConsolePage
       .waitForConfiguration()
       .startActor()
-      .waitForActorToComplete()
-      .exportResults()
-      .downloadResults()
-      .verifyDatasetSchema() // Verify downloaded dataset schema
+      .abortRun()
+      .verifyAbortConfirmation()
+      .verifyAbortMessage()
   })
 })
 
