@@ -22,6 +22,7 @@ describe('Cheerio Scraper E2E Flow', () => {
     ConsolePage
       .waitForConfiguration()
       .openAdvancedConfiguration()
+      .setMaxConcurrency(1) // Set maxConcurrency to 1 for valid results
       .setMaxPagesPerCrawl() // Generates random value and saves to fixture file
       .saveAndStartActor() // Click "Save & Start" button
       .waitForActorToComplete()

@@ -86,6 +86,40 @@ class ConsolePage {
   }
 
   /**
+   * Set startUrl value in the startUrls list
+   * Finds input field inside startUrls container and sets the URL
+   */
+  setStartUrl(url) {
+    cy.logToConsole(`🌐 Setting startUrl: ${url}`)
+    cy.log(`🌐 Setting startUrl: ${url}`)
+    
+    // Find the startUrls container
+    cy.get('#startUrls', { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+    
+    // Find input field inside startUrls container (inside InputRequestList-itemsContainer)
+    cy.get('#startUrls div.InputRequestList-itemsContainer input, #startUrls input[type="text"], #startUrls input[placeholder="URL"]', { timeout: 10000 })
+      .first()
+      .scrollIntoView()
+      .should('be.visible')
+      .clear()
+      .type(url)
+    
+    // Wait a bit for the value to be set
+    cy.wait(500)
+    
+    // Verify the value is set
+    cy.get('#startUrls div.InputRequestList-itemsContainer input, #startUrls input[type="text"], #startUrls input[placeholder="URL"]')
+      .first()
+      .should('have.value', url)
+    
+    cy.logToConsole(`✅ startUrl set to: ${url}`)
+    
+    return this
+  }
+
+  /**
    * Set Glob input field value
    */
   setGlob(glob) {
@@ -103,6 +137,29 @@ class ConsolePage {
     // Verify the value is set
     cy.get('input[placeholder="Glob"]').first().should('have.value', glob)
     cy.logToConsole(`✅ Glob set to: ${glob}`)
+    
+    return this
+  }
+
+  /**
+   * Set max concurrency value
+   * @param {number} value - Max concurrency value (default: 1)
+   */
+  setMaxConcurrency(value = 1) {
+    cy.logToConsole(`⚙️ Setting maxConcurrency to ${value}`)
+    cy.log(`⚙️ Setting maxConcurrency to ${value}`)
+    
+    // Scroll to the input field and set value
+    cy.logToConsole('📍 Scrolling to maxConcurrency input field...')
+    cy.get('input#maxConcurrency', { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .clear()
+      .type(value.toString())
+    
+    // Verify the value is set
+    cy.get('input#maxConcurrency').should('have.value', value.toString())
+    cy.logToConsole(`✅ maxConcurrency set to: ${value}`)
     
     return this
   }

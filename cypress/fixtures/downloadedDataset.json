@@ -2,21 +2,5 @@
   {
     "url": "https://crawlee.dev/js",
     "pageTitle": "Crawlee for JavaScript · Build reliable crawlers. Fast."
-  },
-  {
-    "url": "https://crawlee.dev/js/docs/quick-start",
-    "pageTitle": "Quick Start | Crawlee for JavaScript · Build reliable crawlers. Fast."
-  },
-  {
-    "url": "https://crawlee.dev/js/docs/examples",
-    "pageTitle": "Examples | Crawlee for JavaScript · Build reliable crawlers. Fast."
-  },
-  {
-    "url": "https://crawlee.dev/js/api/core",
-    "pageTitle": "@crawlee/core | API | Crawlee for JavaScript · Build reliable crawlers. Fast."
-  },
-  {
-    "url": "https://crawlee.dev/js/docs/quick-start#__docusaurus_skipToContent_fallback",
-    "pageTitle": "Quick Start | Crawlee for JavaScript · Build reliable crawlers. Fast."
   }
 ]
