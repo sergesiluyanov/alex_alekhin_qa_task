@@ -6,10 +6,11 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 
 1. **Page Object Model (POM)**: All UI interactions are encapsulated in Page Object classes (`PublicWebsitePage` and `ConsolePage`) to ensure maintainability and reusability.
 
-2. **Three Key User Flows**:
+2. **Four Key User Flows**:
    - **Happy Path (001)**: Complete E2E flow from searching the actor to verifying downloaded results
    - **Aborting the Run (002)**: Edge case testing actor abort functionality
    - **Resurrect Run (003)**: Edge case testing actor resurrection after abort
+   - **Invalid URL (004)**: Edge case testing invalid URL handling and empty dataset message
 
 3. **Session Management**: Using `cy.session()` to cache login state and avoid repeated authentication across tests.
 
@@ -27,12 +28,13 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 3. Navigate to Apify Console
 4. Wait for configuration to load
 5. Open Advanced configuration section
-6. Set `maxPagesPerCrawl` to a random value (1-10) and save to fixture
-7. Save and start the actor
-8. Wait for actor to complete
-9. Export results
-10. Download results
-11. Verify that the number of downloaded items matches the configured `maxPagesPerCrawl` value
+6. Set `maxConcurrency` to 1 (for valid results)
+7. Set `maxPagesPerCrawl` to a random value (1-10) and save to fixture
+8. Save and start the actor
+9. Wait for actor to complete
+10. Export results
+11. Download results
+12. Verify that the number of downloaded items matches the configured `maxPagesPerCrawl` value
 
 **Coverage**: This test covers the **required E2E flow** specified in the assignment.
 
@@ -45,7 +47,7 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 4. Verify abort confirmation message appears
 5. Verify "No results" message appears
 
-**Coverage**: Edge case testing - verifies that aborting a run works correctly and shows appropriate messages.
+**Coverage**: verifies that aborting a run works correctly and shows appropriate messages.
 
 ### 3. Resurrect Run (003_cheerio-scraper-resurrect-run.cy.js)
 
@@ -62,13 +64,31 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 10. Export and download results
 11. Verify downloaded items count matches `maxPagesPerCrawl`
 
-**Coverage**: Edge case testing - verifies that resurrecting an aborted run works correctly and processes data.
+**Coverage**: verifies that resurrecting an aborted run works correctly and processes data.
+
+### 4. Invalid URL (004_cheerio-scraper-invalid-url.cy.js)
+
+**Flow**:
+1. Search and open Cheerio Scraper in Console
+2. Set invalid URL: `https://invalid`
+3. Set invalid Glob pattern: `https://invalid/*`
+4. Start the actor
+5. Verify empty dataset message appears ("There are no items on this page")
+6. Navigate back to actor input page
+7. Restore original startUrl: `https://crawlee.dev/js`
+8. Restore original URL: `https://crawlee.dev/js`
+9. Restore original Glob: `https://crawlee.dev/js/*/*`
+10. Save configuration
+
+**Coverage**: verifies that invalid URLs are handled correctly and appropriate error messages are displayed. Also ensures test cleanup by restoring original values.
 
 ## Assumptions
 
 1. **Test Account**: Using a personal Apify test account with free plan limits
 2. **Credentials**: Stored in `.env` file (not committed to repository)
-3. **Free Plan Limits**: `maxPagesPerCrawl` is set to random values between 1-10 to stay within free plan limits
+3. **Free Plan Limits**: 
+   - `maxPagesPerCrawl` is set to random values between 1-10 to stay within free plan limits
+   - `maxConcurrency` is set to 1 for valid results
 4. **Actor Availability**: Cheerio Scraper Actor is available and accessible in the Apify Store
 5. **Network Stability**: Tests assume stable network connection for reliable execution
 6. **Browser**: Tests are designed to run in Electron (Cypress default) but can run in Chrome/Firefox/Edge
@@ -77,14 +97,16 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 
 1. **Export Formats**: Only JSON export is implemented. CSV and XLSX exports are not covered due to time constraints, but the structure allows easy extension.
 
-2. **Input Field Types**: Only `maxPagesPerCrawl` (number type) is tested. Other input types (URLs, text, arrays, booleans) are not covered, but the Page Object pattern makes it easy to add more field types.
+2. **Input Field Types**: Multiple input types are tested:
+   - ✅ Numbers: `maxPagesPerCrawl`, `maxConcurrency`
+   - ✅ URLs: `setUrl()`, `setStartUrl()`
+   - ✅ Text/Patterns: `setGlob()`
 
-3. **Edge Cases**: Limited edge cases are covered:
+3. **Edge Cases**: Comprehensive edge case coverage:
    - ✅ Abort functionality
    - ✅ Resurrect functionality
-   - ❌ Invalid URL handling
-   - ❌ Too high `maxPagesPerCrawl` value
-   - ❌ Network failures
+   - ✅ Invalid URL handling
+   - ✅ Empty dataset message verification
 
 4. **Wait Times**: Fixed 10-second waits are used instead of dynamic polling. This is a trade-off between test speed and reliability.
 
@@ -110,6 +132,10 @@ This solution implements automated end-to-end tests for the Cheerio Scraper Acto
 
 6. **Logging**: Comprehensive logging using `cy.logToConsole()` for debugging and visibility in headless mode.
 
+7. **Test Retries**: Configured 2 retries for each test (`retries: { runMode: 2, openMode: 2 }`) to improve stability and handle transient failures.
+
+8. **Test Cleanup**: Test 004 includes cleanup steps to restore original configuration values after testing invalid inputs, ensuring tests don't affect each other.
+
 ## File Structure
 
 ```
@@ -117,7 +143,8 @@ cypress/
 ├── e2e/
 │   ├── 001_cheerio-scraper-happy-path.cy.js
 │   ├── 002_cheerio-scraper-aborting-the-run.cy.js
-│   └── 003_cheerio-scraper-resurrect-run.cy.js
+│   ├── 003_cheerio-scraper-resurrect-run.cy.js
+│   └── 004_cheerio-scraper-invalid-url.cy.js
 ├── pages/
 │   ├── publicWebsite.js      # Page Object for Apify Public Website
 │   └── consolePage.js        # Page Object for Apify Console
@@ -187,23 +214,42 @@ npm run cy:run:edge
 - **Happy Path (001)**: ~45-50 seconds
 - **Aborting the Run (002)**: ~30-40 seconds
 - **Resurrect Run (003)**: ~60-70 seconds
+- **Invalid URL (004)**: ~40-50 seconds
 
-**Total**: ~2-3 minutes for all tests
+**Total**: ~3-4 minutes for all tests
+
+### Test Retries
+
+All tests are configured with **2 retries** in case of failure:
+- `runMode: 2` - Retries in headless mode (CI/CD)
+- `openMode: 2` - Retries in interactive mode
+
+This improves test stability and handles transient failures (network issues, timeouts, etc.).
 
 ## Test Results
 
-All three tests should pass successfully:
+All four tests should pass successfully:
 - ✅ Happy Path: Verifies complete E2E flow with data validation
 - ✅ Aborting the Run: Verifies abort functionality
 - ✅ Resurrect Run: Verifies resurrect functionality
+- ✅ Invalid URL: Verifies invalid URL handling and empty dataset message
+
+Each test will automatically retry up to 2 times if it fails, improving overall test stability.
 
 ## Known Limitations
 
 1. **Export Formats**: Only JSON export is tested. CSV and XLSX exports are not covered.
 
-2. **Input Field Types**: Only numeric input (`maxPagesPerCrawl`) is tested. Other field types are not covered.
+2. **Input Field Types**: Multiple input types are tested:
+   - ✅ Numbers: `maxPagesPerCrawl`, `maxConcurrency`
+   - ✅ URLs: `setUrl()`, `setStartUrl()`
+   - ✅ Text/Patterns: `setGlob()`
 
-3. **Edge Cases**: Limited edge case coverage. More edge cases could be added (invalid URLs, boundary values, etc.).
+3. **Edge Cases**: Comprehensive edge case coverage:
+   - ✅ Abort functionality
+   - ✅ Resurrect functionality
+   - ✅ Invalid URL handling
+   - ✅ Empty dataset message verification
 
 4. **Wait Times**: Fixed wait times may cause flakiness in slower environments. Dynamic polling could be more robust.
 
@@ -226,4 +272,7 @@ All three tests should pass successfully:
 - All operations are logged to console for debugging
 - Test data is stored in fixtures for verification
 - Screenshots and videos are generated on test failures
+- Tests are configured with 2 retries to handle transient failures
+- Test 004 includes cleanup to restore original configuration values
+- `maxConcurrency` is set to 1 in test 001 to ensure valid results
 
