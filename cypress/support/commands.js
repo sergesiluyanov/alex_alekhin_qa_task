@@ -36,6 +36,12 @@ Cypress.Commands.add('blockAllRequests', () => {
   });
 });
 
+// Log to console (Node.js terminal)
+Cypress.Commands.add('logToConsole', (message) => {
+  cy.task('log', message, { log: false })
+  return cy.wrap(null, { log: false })
+})
+
 // Read downloaded dataset file
 Cypress.Commands.add('readDownloadedDataset', () => {
   return cy.task('findDownloadedFile', 'cypress/downloads/dataset_cheerio-scraper_*.json').then((filePath) => {

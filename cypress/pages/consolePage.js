@@ -3,7 +3,7 @@ class ConsolePage {
    * Wait for configuration to load
    */
   waitForConfiguration() {
-    console.log('⏳ Waiting for configuration to load')
+    cy.logToConsole('⏳ Waiting for configuration to load')
     cy.contains('Basic configuration', { timeout: 30000 })
       .should('be.visible')
     cy.log('✅ Configuration loaded')
@@ -14,19 +14,19 @@ class ConsolePage {
    * Open Advanced configuration section
    */
   openAdvancedConfiguration() {
-    console.log('⚙️ Opening Advanced configuration section')
+    cy.logToConsole('⚙️ Opening Advanced configuration section')
     cy.log('⚙️ Opening Advanced configuration section')
     
     // Wait for Advanced configuration section to be visible
-    console.log('⏳ Waiting for Advanced configuration section...')
+    cy.logToConsole('⏳ Waiting for Advanced configuration section...')
     cy.contains('div', 'Advanced configuration', { timeout: 30000 })
       .should('be.visible')
     
-    console.log('🖱️ Clicking Advanced configuration section...')
+    cy.logToConsole('🖱️ Clicking Advanced configuration section...')
     cy.contains('div', 'Advanced configuration')
       .click()
     
-    console.log('✅ Advanced configuration section opened')
+    cy.logToConsole('✅ Advanced configuration section opened')
     cy.log('✅ Advanced configuration section opened')
     return this
   }
@@ -36,43 +36,43 @@ class ConsolePage {
    * Saves the generated value to fixture file for later comparison
    */
   setMaxPagesPerCrawl() {
-    console.log('⚙️ Setting maxPagesPerCrawl')
+    cy.logToConsole('⚙️ Setting maxPagesPerCrawl')
     cy.log('⚙️ Setting maxPagesPerCrawl')
     
     // Generate random number between 1 and 10
     const randomValue = Math.floor(Math.random() * 10) + 1
-    console.log(`🎲 Generated random maxPages value: ${randomValue}`)
+    cy.logToConsole(`🎲 Generated random maxPages value: ${randomValue}`)
     cy.log(`🎲 Generated random maxPages value: ${randomValue}`)
     
     // Scroll to the input field and set value
-    console.log('📍 Scrolling to maxPagesPerCrawl input field...')
+    cy.logToConsole('📍 Scrolling to maxPagesPerCrawl input field...')
     cy.get('input#maxPagesPerCrawl', { timeout: 10000 })
       .scrollIntoView()
       .should('be.visible')
     
-    console.log(`📝 Typing value: ${randomValue}`)
+    cy.logToConsole(`📝 Typing value: ${randomValue}`)
     cy.get('input#maxPagesPerCrawl')
       .clear()
       .type(randomValue.toString())
       .then(($input) => {
         const actualValue = $input.val()
-        console.log(`📝 Input field value after typing: ${actualValue}`)
+        cy.logToConsole(`📝 Input field value after typing: ${actualValue}`)
         cy.log(`📝 Input field value: ${actualValue}`)
         if (actualValue !== randomValue.toString()) {
-          console.error(`❌ ERROR: Input value mismatch! Expected: ${randomValue}, Got: ${actualValue}`)
+          cy.logToConsole(`❌ ERROR: Input value mismatch! Expected: ${randomValue}, Got: ${actualValue}`)
         } else {
-          console.log(`✅ Input value matches: ${actualValue}`)
+          cy.logToConsole(`✅ Input value matches: ${actualValue}`)
         }
       })
     
     // Verify the value is actually set in the input
-    console.log('✅ Verifying input value...')
+    cy.logToConsole('✅ Verifying input value...')
     cy.get('input#maxPagesPerCrawl').should('have.value', randomValue.toString())
     
     // Save value to fixture file for later comparison
-    console.log(`💾 Saving maxPages value ${randomValue} to fixture file...`)
+    cy.logToConsole(`💾 Saving maxPages value ${randomValue} to fixture file...`)
     cy.writeFile('cypress/fixtures/maxPages.json', { maxPages: randomValue })
-    console.log(`💾 Saved maxPages value ${randomValue} to fixture file`)
+    cy.logToConsole(`💾 Saved maxPages value ${randomValue} to fixture file`)
     cy.log(`💾 Generated and saved maxPages value: ${randomValue}`)
     
     return this
@@ -83,33 +83,33 @@ class ConsolePage {
    * After setting maxPagesPerCrawl, the button changes to "Save & Start"
    */
   saveAndStartActor() {
-    console.log('💾 Starting save and start process')
+    cy.logToConsole('💾 Starting save and start process')
     cy.log('💾 Saving configuration and starting actor')
     
     // Verify maxPages value is still in the input before saving
     cy.readFile('cypress/fixtures/maxPages.json').then((maxPagesFixture) => {
       const expectedValue = maxPagesFixture.maxPages
-      console.log(`🔍 Verifying maxPages value in input before save: ${expectedValue}`)
+      cy.logToConsole(`🔍 Verifying maxPages value in input before save: ${expectedValue}`)
       cy.log(`🔍 Verifying maxPages value: ${expectedValue}`)
       
       cy.get('input#maxPagesPerCrawl').should('have.value', expectedValue.toString())
-      console.log(`✅ Verified maxPages value in input: ${expectedValue}`)
+      cy.logToConsole(`✅ Verified maxPages value in input: ${expectedValue}`)
     })
     
     // Wait for button to be ready
-    console.log('⏳ Waiting for "Save & Start" button to be enabled...')
+    cy.logToConsole('⏳ Waiting for "Save & Start" button to be enabled...')
     cy.get('#onboarding-run-actor', { timeout: 10000 })
       .should('be.visible')
       .should('not.be.disabled')
     
-    console.log('✅ "Save & Start" button is enabled')
+    cy.logToConsole('✅ "Save & Start" button is enabled')
     
     // Click the button
-    console.log('🖱️ Clicking "Save & Start" button...')
+    cy.logToConsole('🖱️ Clicking "Save & Start" button...')
     cy.get('#onboarding-run-actor')
       .click()
     
-    console.log('✅ Clicked "Save & Start" button')
+    cy.logToConsole('✅ Clicked "Save & Start" button')
     cy.log('✅ Clicked "Save & Start" button')
     return this
   }
@@ -118,7 +118,7 @@ class ConsolePage {
    * Start the actor (used in other tests without configuration changes)
    */
   startActor() {
-    console.log('▶️ Starting actor')
+    cy.logToConsole('▶️ Starting actor')
     cy.get('#onboarding-run-actor', { timeout: 10000 })
       .should('be.visible')
       .click()
@@ -130,7 +130,7 @@ class ConsolePage {
    * Abort the running actor
    */
   abortRun() {
-    console.log('🛑 Aborting actor run')
+    cy.logToConsole('🛑 Aborting actor run')
     cy.contains('button', 'Abort', { matchCase: false, timeout: 30000 })
       .should('be.visible')
       .click()
@@ -142,7 +142,7 @@ class ConsolePage {
    * Verify abort confirmation message appears
    */
   verifyAbortConfirmation() {
-    console.log('✅ Verifying abort confirmation message')
+    cy.logToConsole('✅ Verifying abort confirmation message')
     cy.contains('Actor run was aborted', { timeout: 30000 })
       .should('be.visible')
     cy.log('✅ Abort confirmation message is visible')
@@ -153,7 +153,7 @@ class ConsolePage {
    * Verify abort message appears
    */
   verifyAbortMessage() {
-    console.log('✅ Verifying abort message')
+    cy.logToConsole('✅ Verifying abort message')
     cy.contains('No results', { timeout: 30000 })
       .should('be.visible')
     cy.contains('The Actor finished with no results. Check the log for more information.', { timeout: 30000 })
@@ -166,7 +166,7 @@ class ConsolePage {
    * Open Actions menu
    */
   openActionsMenu() {
-    console.log('📋 Opening Actions menu')
+    cy.logToConsole('📋 Opening Actions menu')
     cy.get('button[data-test="actor-run-actions-button"]', { timeout: 30000 })
       .should('be.visible')
       .click()
@@ -178,7 +178,7 @@ class ConsolePage {
    * Select Resurrect from Actions menu
    */
   selectResurrect() {
-    console.log('♻️ Selecting Resurrect from Actions menu')
+    cy.logToConsole('♻️ Selecting Resurrect from Actions menu')
     cy.contains('span', 'Resurrect', { timeout: 10000 })
       .should('be.visible')
       .click()
@@ -190,7 +190,7 @@ class ConsolePage {
    * Confirm Resurrect in modal
    */
   confirmResurrect() {
-    console.log('✅ Confirming Resurrect in modal')
+    cy.logToConsole('✅ Confirming Resurrect in modal')
     cy.contains('button', 'Resurrect', { matchCase: false, timeout: 10000 })
       .should('be.visible')
       .click()
@@ -212,36 +212,36 @@ class ConsolePage {
    * Reads maxPages from fixture and waits until dataset has at least that many items
    */
   waitForActorToComplete() {
-    console.log('⏳ Waiting for actor to complete data collection')
+    cy.logToConsole('⏳ Waiting for actor to complete data collection')
     cy.log('⏳ Waiting for actor to complete data collection')
     
     // Read expected maxPages to know how many items to wait for
     cy.readFile('cypress/fixtures/maxPages.json').then((maxPagesFixture) => {
       const expectedCount = maxPagesFixture.maxPages
-      console.log(`📋 Waiting for ${expectedCount} items to be processed`)
+      cy.logToConsole(`📋 Waiting for ${expectedCount} items to be processed`)
       cy.log(`📋 Waiting for ${expectedCount} items to be processed`)
       
       // Wait for the "getting data" message to disappear
       cy.contains('The Actor is getting your data...', { timeout: 120000 })
         .should('not.exist')
       
-      console.log('✅ "Getting data" message disappeared')
+      cy.logToConsole('✅ "Getting data" message disappeared')
       
       // Wait for export button to appear (indicates actor has finished)
       cy.get('button#data-tracking-output-export', { timeout: 60000 })
         .should('be.visible')
         .should('not.be.disabled')
       
-      console.log('✅ Export button is enabled')
+      cy.logToConsole('✅ Export button is enabled')
       
       // Wait to ensure all data is fully processed and saved to dataset
       // The actor needs time to process all pages and save them to the dataset
-      console.log(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
+      cy.logToConsole(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
       cy.wait(10000)
       
       // Additional check: wait for dataset count indicator if available
       // Some UI elements might show dataset item count
-      console.log('✅ Actor completed data collection')
+      cy.logToConsole('✅ Actor completed data collection')
       cy.log(`✅ Actor completed data collection (expected ${expectedCount} items)`)
     })
     
@@ -253,38 +253,38 @@ class ConsolePage {
    * Waits for export button to be enabled and ensures dataset is fully ready
    */
   exportResults() {
-    console.log('📤 Starting export process')
+    cy.logToConsole('📤 Starting export process')
     cy.log('📤 Starting export process')
     
     // Read expected maxPages from fixture
     cy.readFile('cypress/fixtures/maxPages.json').then((maxPagesFixture) => {
       const expectedCount = maxPagesFixture.maxPages
-      console.log(`📋 Expected items count from maxPages: ${expectedCount}`)
+      cy.logToConsole(`📋 Expected items count from maxPages: ${expectedCount}`)
       cy.log(`📋 Expected items count: ${expectedCount}`)
       
       // Wait for export button to be enabled (this indicates actor has finished)
-      console.log('⏳ Waiting for export button to be enabled...')
+      cy.logToConsole('⏳ Waiting for export button to be enabled...')
       cy.get('button#data-tracking-output-export', { timeout: 60000 })
         .should('be.visible')
         .should('not.be.disabled')
       
-      console.log('✅ Export button is enabled')
+      cy.logToConsole('✅ Export button is enabled')
       
       // Wait to ensure all data is fully processed and saved to dataset
       // The actor needs time to process all pages and save them to the dataset
-      console.log(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
+      cy.logToConsole(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
       cy.log(`⏳ Waiting for dataset to be fully saved (${expectedCount} items, 10s)...`)
       cy.wait(10000)
       
       // Click export button
-      console.log('🖱️ Clicking "Export" button...')
+      cy.logToConsole('🖱️ Clicking "Export" button...')
       cy.get('button#data-tracking-output-export')
         .click()
       
       // Wait after clicking export to ensure export modal/dialog is ready
       cy.wait(3000)
       
-      console.log(`✅ Clicked "Export" button (expected ${expectedCount} items)`)
+      cy.logToConsole(`✅ Clicked "Export" button (expected ${expectedCount} items)`)
       cy.log(`✅ Clicked "Export" button (expected ${expectedCount} items)`)
     })
     
@@ -296,46 +296,46 @@ class ConsolePage {
    * Waits for file to be downloaded, reads it and saves to fixtures
    */
   downloadResults() {
-    console.log('📥 Starting download process')
+    cy.logToConsole('📥 Starting download process')
     cy.log('📥 Starting download process')
     
     // Get current time before download to find only new files
     const beforeDownloadTime = Date.now()
-    console.log(`⏰ Timestamp before download: ${new Date(beforeDownloadTime).toISOString()}`)
+    cy.logToConsole(`⏰ Timestamp before download: ${new Date(beforeDownloadTime).toISOString()}`)
     
     // Wait for Download button and click it
-    console.log('⏳ Waiting for Download button...')
+    cy.logToConsole('⏳ Waiting for Download button...')
     cy.contains('button', 'Download', { matchCase: false, timeout: 30000 })
       .should('be.visible')
       .click()
     
-    console.log('✅ Clicked "Download" button')
+    cy.logToConsole('✅ Clicked "Download" button')
     cy.log('✅ Clicked "Download" button')
     
     // Wait for file to be downloaded
-    console.log('⏳ Waiting for file to be downloaded...')
+    cy.logToConsole('⏳ Waiting for file to be downloaded...')
     cy.wait(5000) // Give browser time to download file
     
     // Find and read the downloaded file created after download started, then save to fixtures
-    console.log('🔍 Searching for downloaded file...')
+    cy.logToConsole('🔍 Searching for downloaded file...')
     cy.task('findDownloadedFileAfterTime', { 
       pattern: 'cypress/downloads/dataset_cheerio-scraper_*.json',
       afterTime: beforeDownloadTime
     }).then((filePath) => {
-      console.log(`📥 Found downloaded file: ${filePath}`)
+      cy.logToConsole(`📥 Found downloaded file: ${filePath}`)
       cy.log(`📥 Found downloaded file: ${filePath}`)
       
       // Read the downloaded file
-      console.log('📖 Reading downloaded file...')
+      cy.logToConsole('📖 Reading downloaded file...')
       cy.readFile(filePath, { timeout: 30000 }).then((data) => {
-        console.log(`📊 Dataset contains ${data.length} items`)
-        console.log(`📊 First item:`, data[0] ? JSON.stringify(data[0], null, 2) : 'No items')
+        cy.logToConsole(`📊 Dataset contains ${data.length} items`)
+        cy.logToConsole(`📊 First item: ${data[0] ? JSON.stringify(data[0], null, 2) : 'No items'}`)
         cy.log(`📊 Dataset contains ${data.length} items`)
         
         // Save downloaded dataset to fixture file
-        console.log('💾 Saving dataset to fixture file...')
+        cy.logToConsole('💾 Saving dataset to fixture file...')
         cy.writeFile('cypress/fixtures/downloadedDataset.json', data)
-        console.log('💾 Saved downloaded dataset to fixture file')
+        cy.logToConsole('💾 Saved downloaded dataset to fixture file')
         cy.log(`💾 Saved downloaded dataset to fixture file`)
       })
     })
@@ -349,7 +349,7 @@ class ConsolePage {
    * @param {number} minItems - Minimum number of items to verify (default: 1)
    */
   verifyDatasetSchema(minItems = 1) {
-    console.log(`✅ Verifying dataset schema (minItems: ${minItems})`)
+    cy.logToConsole(`✅ Verifying dataset schema (minItems: ${minItems})`)
     // Wait for actor to complete first
     this.waitForActorToComplete()
     
@@ -375,27 +375,27 @@ class ConsolePage {
    * Reads dataset from fixture file, saves items count to fixture and compares with maxPages
    */
   verifyDownloadedItemsCount() {
-    console.log('🔍 Starting verification of downloaded items count')
+    cy.logToConsole('🔍 Starting verification of downloaded items count')
     cy.log('🔍 Starting verification of downloaded items count')
     
     // Read maxPages from fixture file first
     cy.readFile('cypress/fixtures/maxPages.json').then((maxPagesFixture) => {
       const maxPages = maxPagesFixture.maxPages
-      console.log(`📋 Reading maxPages from fixture: ${maxPages}`)
+      cy.logToConsole(`📋 Reading maxPages from fixture: ${maxPages}`)
       cy.log(`📋 Expected maxPages from fixture: ${maxPages}`)
       
       // Read dataset from fixture file
       cy.readFile('cypress/fixtures/downloadedDataset.json').then((data) => {
-        console.log(`📊 Reading downloaded dataset from fixture file`)
-        console.log(`📊 Total items in dataset file: ${data.length}`)
+        cy.logToConsole(`📊 Reading downloaded dataset from fixture file`)
+        cy.logToConsole(`📊 Total items in dataset file: ${data.length}`)
         cy.log(`📊 Total items in dataset: ${data.length}`)
         
         // Verify it's an array
         cy.wrap(data).should('be.an', 'array')
-        console.log('✅ Dataset is a valid array')
+        cy.logToConsole('✅ Dataset is a valid array')
         
         // Filter items that have both url and pageTitle
-        console.log('🔍 Filtering valid items (with url and pageTitle)...')
+        cy.logToConsole('🔍 Filtering valid items (with url and pageTitle)...')
         const validItems = data.filter(item => 
           item && 
           item.url && 
@@ -407,33 +407,33 @@ class ConsolePage {
         )
         
         const itemsCount = validItems.length
-        console.log(`✅ Valid items count: ${itemsCount}`)
-        console.log(`📋 Valid items URLs:`, validItems.map(item => item.url))
+        cy.logToConsole(`✅ Valid items count: ${itemsCount}`)
+        cy.logToConsole(`📋 Valid items URLs: ${JSON.stringify(validItems.map(item => item.url))}`)
         cy.log(`✅ Valid items (with url and pageTitle): ${itemsCount}`)
         
         // Save items count to fixture file
         cy.writeFile('cypress/fixtures/itemsCount.json', { itemsCount: itemsCount })
-        console.log(`💾 Saved itemsCount (${itemsCount}) to fixture file`)
+        cy.logToConsole(`💾 Saved itemsCount (${itemsCount}) to fixture file`)
         cy.log(`💾 Saved itemsCount (${itemsCount}) to fixture file`)
         
         // Compare values
-        console.log(`🔍 Comparison: itemsCount (${itemsCount}) === maxPages (${maxPages})`)
+        cy.logToConsole(`🔍 Comparison: itemsCount (${itemsCount}) === maxPages (${maxPages})`)
         cy.log(`🔍 Comparing values: itemsCount (${itemsCount}) === maxPages (${maxPages})`)
         
         if (itemsCount !== maxPages) {
-          console.error(`❌ MISMATCH DETECTED!`)
-          console.error(`❌ itemsCount: ${itemsCount}`)
-          console.error(`❌ maxPages: ${maxPages}`)
-          console.error(`❌ Difference: ${Math.abs(itemsCount - maxPages)}`)
-          console.error(`❌ Dataset contains ${itemsCount} items, but maxPages was set to ${maxPages}`)
+          cy.logToConsole(`❌ MISMATCH DETECTED!`)
+          cy.logToConsole(`❌ itemsCount: ${itemsCount}`)
+          cy.logToConsole(`❌ maxPages: ${maxPages}`)
+          cy.logToConsole(`❌ Difference: ${Math.abs(itemsCount - maxPages)}`)
+          cy.logToConsole(`❌ Dataset contains ${itemsCount} items, but maxPages was set to ${maxPages}`)
         } else {
-          console.log(`✅ Values match: itemsCount (${itemsCount}) === maxPages (${maxPages})`)
+          cy.logToConsole(`✅ Values match: itemsCount (${itemsCount}) === maxPages (${maxPages})`)
         }
         
         // Verify count matches maxPages exactly
         cy.wrap(itemsCount).should('equal', maxPages)
         
-        console.log(`✅ Assertion passed: itemsCount (${itemsCount}) matches maxPages (${maxPages})`)
+        cy.logToConsole(`✅ Assertion passed: itemsCount (${itemsCount}) matches maxPages (${maxPages})`)
         cy.log(`✅ Assertion passed: itemsCount (${itemsCount}) matches maxPages (${maxPages})`)
       })
     })

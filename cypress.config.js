@@ -32,6 +32,10 @@ module.exports = defineConfig({
       const path = require('path')
       
       on('task', {
+        log(message) {
+          console.log(message)
+          return null
+        },
         findDownloadedFile(pattern) {
           const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
           
