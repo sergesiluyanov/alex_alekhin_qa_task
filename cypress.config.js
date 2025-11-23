@@ -15,19 +15,19 @@ module.exports = defineConfig({
     fixturesFolder: 'cypress/fixtures',
     screenshotsFolder: 'cypress/screenshots',
     videosFolder: 'cypress/videos',
-    // Важно: Cypress может работать с переходами между доменами через редирект
-    // При прямом переходе между разными доменами может потребоваться chromeWebSecurity: false
-    // Но в нашем случае переход происходит через редирект, поэтому должно работать
+    // Important: Cypress can work with redirects between domains
+    // When directly transitioning between different domains, chromeWebSecurity: false may be required
+    // But in our case the transition happens through a redirect, so it should work
     chromeWebSecurity: true,
     setupNodeEvents(on, config) {
-      // Загружаем переменные окружения из .env файла
+      // load environment variables from .env file
       require('dotenv').config()
       
-      // Передаем env переменные в Cypress
+      // pass env variables to Cypress
       config.env.APIFY_EMAIL = process.env.APIFY_EMAIL
       config.env.APIFY_PASSWORD = process.env.APIFY_PASSWORD
       
-      // Task для поиска скачанного файла
+      // Task to find downloaded file
       const fs = require('fs')
       const path = require('path')
       
@@ -35,12 +35,12 @@ module.exports = defineConfig({
         findDownloadedFile(pattern) {
           const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
           
-          // Проверяем существование директории
+          // check if the downloads directory exists
           if (!fs.existsSync(downloadsDir)) {
             throw new Error(`Downloads directory does not exist: ${downloadsDir}`)
           }
           
-          // Читаем все файлы в директории и фильтруем по паттерну
+          // read all files in the directory and filter by pattern
           const files = fs.readdirSync(downloadsDir)
             .filter(file => file.startsWith('dataset_cheerio-scraper_') && file.endsWith('.json'))
             .map(file => path.join(downloadsDir, file))
@@ -49,11 +49,48 @@ module.exports = defineConfig({
             throw new Error('No dataset files found in downloads directory')
           }
           
-          // Возвращаем самый новый файл
+          // return the latestfile
           const sortedFiles = files
             .map(file => ({ file, mtime: fs.statSync(file).mtime }))
             .sort((a, b) => b.mtime - a.mtime)
           
+          return sortedFiles[0].file
+        },
+        findDownloadedFileAfterTime({ pattern, afterTime }) {
+          const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
+          
+          // check if the directory exists
+          if (!fs.existsSync(downloadsDir)) {
+            throw new Error(`Downloads directory does not exist: ${downloadsDir}`)
+          }
+          
+          // read all files in the directory and filter by pattern
+          const allFiles = fs.readdirSync(downloadsDir)
+            .filter(file => file.startsWith('dataset_cheerio-scraper_') && file.endsWith('.json'))
+            .map(file => path.join(downloadsDir, file))
+          
+          if (allFiles.length === 0) {
+            throw new Error('No dataset files found in downloads directory')
+          }
+          
+          // filter files created after the specified time
+          const filesAfterTime = allFiles
+            .map(file => {
+              const stats = fs.statSync(file)
+              return { file, mtime: stats.mtime, mtimeMs: stats.mtime.getTime() }
+            })
+            .filter(({ mtimeMs }) => mtimeMs >= afterTime)
+          
+          if (filesAfterTime.length === 0) {
+            // if there are no files after the specified time, return the latest file from all files
+            const sortedFiles = allFiles
+              .map(file => ({ file, mtime: fs.statSync(file).mtime }))
+              .sort((a, b) => b.mtime - a.mtime)
+            return sortedFiles[0].file
+          }
+          
+          // return the latest file from the files created after the specified time
+          const sortedFiles = filesAfterTime.sort((a, b) => b.mtimeMs - a.mtimeMs)
           return sortedFiles[0].file
         }
       })

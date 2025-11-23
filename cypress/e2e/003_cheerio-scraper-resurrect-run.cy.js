@@ -10,7 +10,7 @@ describe('Cheerio Scraper E2E Flow', () => {
     cy.loginToConsole()
   })
 
-  it('should search, configure, run and abort Cheerio Scraper', () => {
+  it('should search, configure, run, abort and resurrect Cheerio Scraper', () => {
     // Search for actor on Public Website
     PublicWebsitePage
       .visit()
@@ -25,6 +25,10 @@ describe('Cheerio Scraper E2E Flow', () => {
       .abortRun()
       .verifyAbortConfirmation()
       .verifyAbortMessage()
+      .openActionsMenu()
+      .selectResurrect()
+      .confirmResurrect()
+      .verifyDatasetSchema(1) // Verify at least 1 data item appears on the page
   })
 })
 

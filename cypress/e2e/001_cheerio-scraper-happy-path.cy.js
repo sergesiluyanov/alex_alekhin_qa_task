@@ -21,11 +21,13 @@ describe('Cheerio Scraper E2E Flow', () => {
     // Apify Console
     ConsolePage
       .waitForConfiguration()
-      .startActor()
+      .openAdvancedConfiguration()
+      .setMaxPagesPerCrawl() // Generates random value and saves to fixture file
+      .saveAndStartActor() // Click "Save & Start" button
       .waitForActorToComplete()
       .exportResults()
       .downloadResults()
-      .verifyDatasetSchema() // Verify downloaded dataset schema
+      .verifyDownloadedItemsCount() // Reads maxPages from fixture and compares with latest downloaded file
   })
 })
 

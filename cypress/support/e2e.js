@@ -26,3 +26,11 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false
 })
 
+// Disable logging for intercepted requests to reduce log noise
+Cypress.on('log:added', (options) => {
+  // Hide intercept logs from command log
+  if (options.instrument === 'command' && options.name === 'intercept') {
+    return false
+  }
+})
+
