@@ -10,6 +10,10 @@ module.exports = defineConfig({
     requestTimeout: 10000,
     responseTimeout: 10000,
     pageLoadTimeout: 60000,
+    retries: {
+      runMode: 2, // Retry failed tests 2 times in headless mode (CI/CD)
+      openMode: 2 // Retry failed tests 2 times in interactive mode
+    },
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.js',
     fixturesFolder: 'cypress/fixtures',
