@@ -36,30 +36,6 @@ module.exports = defineConfig({
           console.log(message)
           return null
         },
-        findDownloadedFile(pattern) {
-          const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
-          
-          // check if the downloads directory exists
-          if (!fs.existsSync(downloadsDir)) {
-            throw new Error(`Downloads directory does not exist: ${downloadsDir}`)
-          }
-          
-          // read all files in the directory and filter by pattern
-          const files = fs.readdirSync(downloadsDir)
-            .filter(file => file.startsWith('dataset_cheerio-scraper_') && file.endsWith('.json'))
-            .map(file => path.join(downloadsDir, file))
-          
-          if (files.length === 0) {
-            throw new Error('No dataset files found in downloads directory')
-          }
-          
-          // return the latestfile
-          const sortedFiles = files
-            .map(file => ({ file, mtime: fs.statSync(file).mtime }))
-            .sort((a, b) => b.mtime - a.mtime)
-          
-          return sortedFiles[0].file
-        },
         findDownloadedFileAfterTime({ pattern, afterTime }) {
           const downloadsDir = path.join(process.cwd(), 'cypress', 'downloads')
           

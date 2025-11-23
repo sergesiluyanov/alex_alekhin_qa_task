@@ -199,15 +199,6 @@ class ConsolePage {
   }
 
   /**
-   * Wait for data items to appear
-   */
-  waitForDataItems() {
-    cy.get('[data-test*="item"], [data-test*="dataset"], [data-test*="result"]', { timeout: 60000 })
-      .should('have.length.at.least', 1)
-    return this
-  }
-
-  /**
    * Wait for actor to complete data collection
    * Reads maxPages from fixture and waits until dataset has at least that many items
    */

@@ -21,14 +21,19 @@ describe('Cheerio Scraper E2E Flow', () => {
     // Apify Console
     ConsolePage
       .waitForConfiguration()
-      .startActor()
+      .openAdvancedConfiguration()
+      .setMaxPagesPerCrawl() // Generates random value and saves to fixture file
+      .saveAndStartActor()
       .abortRun()
       .verifyAbortConfirmation()
       .verifyAbortMessage()
       .openActionsMenu()
       .selectResurrect()
       .confirmResurrect()
-      .verifyDatasetSchema(1) // Verify at least 1 data item appears on the page
+      .waitForActorToComplete()
+      .exportResults()
+      .downloadResults()
+      .verifyDownloadedItemsCount()
   })
 })
 

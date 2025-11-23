@@ -1,24 +1,3 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-
-// Custom command example
-Cypress.Commands.add('login', (username, password) => {
-  cy.request({
-    method: 'POST',
-    url: '/api/login',
-    body: { username, password }
-  }).then((response) => {
-    window.localStorage.setItem('token', response.body.token)
-  })
-})
-
 // Type with delay (useful for slow typing simulation)
 Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
   options = options || {}
@@ -40,13 +19,6 @@ Cypress.Commands.add('blockAllRequests', () => {
 Cypress.Commands.add('logToConsole', (message) => {
   cy.task('log', message, { log: false })
   return cy.wrap(null, { log: false })
-})
-
-// Read downloaded dataset file
-Cypress.Commands.add('readDownloadedDataset', () => {
-  return cy.task('findDownloadedFile', 'cypress/downloads/dataset_cheerio-scraper_*.json').then((filePath) => {
-    return cy.readFile(filePath, { timeout: 30000 })
-  })
 })
 
 // Login to Apify Console with session saving
