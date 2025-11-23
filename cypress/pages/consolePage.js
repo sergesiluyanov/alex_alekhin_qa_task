@@ -11,6 +11,38 @@ class ConsolePage {
   }
 
   /**
+   * Navigate back to actor input/configuration page
+   * Extracts actor URL from current page and navigates to it
+   */
+  navigateToActorInput() {
+    cy.logToConsole('🔙 Navigating back to actor input page')
+    cy.log('🔙 Navigating back to actor input page')
+    
+    // Get current URL and extract actor page URL
+    cy.url().then((currentUrl) => {
+      // If we're on a run page (contains /runs/), navigate to actor page
+      if (currentUrl.includes('/runs/')) {
+        // Remove /runs/... part to get actor page URL
+        const actorUrl = currentUrl.split('/runs/')[0]
+        cy.logToConsole(`📍 Navigating to actor page: ${actorUrl}`)
+        cy.visit(actorUrl, { timeout: 30000 })
+      } else {
+        // If already on actor page, just refresh or wait
+        cy.logToConsole('📍 Already on actor page, refreshing...')
+        cy.reload()
+      }
+    })
+    
+    // Wait for configuration to be visible
+    cy.contains('Basic configuration', { timeout: 30000 })
+      .should('be.visible')
+    
+    cy.logToConsole('✅ Navigated to actor input page')
+    cy.log('✅ Navigated to actor input page')
+    return this
+  }
+
+  /**
    * Open Advanced configuration section
    */
   openAdvancedConfiguration() {
@@ -28,6 +60,50 @@ class ConsolePage {
     
     cy.logToConsole('✅ Advanced configuration section opened')
     cy.log('✅ Advanced configuration section opened')
+    return this
+  }
+
+  /**
+   * Set URL input field value
+   */
+  setUrl(url) {
+    cy.logToConsole(`🌐 Setting URL: ${url}`)
+    cy.log(`🌐 Setting URL: ${url}`)
+    
+    // Find input with placeholder "URL" - use first() to ensure only one element
+    cy.get('input[placeholder="URL"]', { timeout: 10000 })
+      .first()
+      .scrollIntoView()
+      .should('be.visible')
+      .clear()
+      .type(url)
+    
+    // Verify the value is set
+    cy.get('input[placeholder="URL"]').first().should('have.value', url)
+    cy.logToConsole(`✅ URL set to: ${url}`)
+    
+    return this
+  }
+
+  /**
+   * Set Glob input field value
+   */
+  setGlob(glob) {
+    cy.logToConsole(`🔍 Setting Glob: ${glob}`)
+    cy.log(`🔍 Setting Glob: ${glob}`)
+    
+    // Find input with placeholder "Glob" - use first() to ensure only one element
+    cy.get('input[placeholder="Glob"]', { timeout: 10000 })
+      .first()
+      .scrollIntoView()
+      .should('be.visible')
+      .clear()
+      .type(glob)
+    
+    // Verify the value is set
+    cy.get('input[placeholder="Glob"]').first().should('have.value', glob)
+    cy.logToConsole(`✅ Glob set to: ${glob}`)
+    
     return this
   }
 
@@ -127,6 +203,29 @@ class ConsolePage {
   }
 
   /**
+   * Save configuration without starting the actor
+   * Clicks the "Save" button
+   */
+  saveConfiguration() {
+    cy.logToConsole('💾 Saving configuration')
+    cy.log('💾 Saving configuration')
+    
+    // Wait for Save button to be visible and enabled
+    // Using more reliable selector: find button with "Save" text inside form > section
+    // This is more resilient to CSS class changes
+    cy.get('form section')
+      .find('button')
+      .contains('Save', { matchCase: false })
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click()
+    
+    cy.logToConsole('✅ Clicked "Save" button')
+    cy.log('✅ Clicked "Save" button')
+    return this
+  }
+
+  /**
    * Abort the running actor
    */
   abortRun() {
@@ -159,6 +258,28 @@ class ConsolePage {
     cy.contains('The Actor finished with no results. Check the log for more information.', { timeout: 30000 })
       .should('be.visible')
     cy.log('✅ Abort message is visible')
+    return this
+  }
+
+  /**
+   * Verify empty dataset message appears
+   * Checks for the message about no items on the page
+   */
+  verifyEmptyDatasetMessage() {
+    cy.logToConsole('✅ Verifying empty dataset message')
+    
+    // Wait for actor to complete first
+    cy.contains('The Actor is getting your data...', { timeout: 120000 })
+      .should('not.exist')
+    // Verify the empty dataset message
+    cy.contains('There are no items on this page', { timeout: 30000 })
+      .should('be.visible')
+    
+    cy.contains('Use the buttons below to navigate to the nearest non-empty page. This might take a while and could affect your usage if the dataset is sparse.', { timeout: 30000 })
+      .should('be.visible')
+    
+    cy.logToConsole('✅ Empty dataset message is visible')
+    cy.log('✅ Empty dataset message is visible')
     return this
   }
 

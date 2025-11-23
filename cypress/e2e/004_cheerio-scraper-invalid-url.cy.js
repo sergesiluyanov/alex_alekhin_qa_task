@@ -10,7 +10,7 @@ describe('Cheerio Scraper E2E Flow', () => {
     cy.loginToConsole()
   })
 
-  it('should search, configure, run Cheerio Scraper and verify results', () => {
+  it('should handle invalid URL and verify empty dataset message', () => {
     // Search for actor on Public Website
     PublicWebsitePage
       .visit()
@@ -21,13 +21,16 @@ describe('Cheerio Scraper E2E Flow', () => {
     // Apify Console
     ConsolePage
       .waitForConfiguration()
-      .openAdvancedConfiguration()
-      .setMaxPagesPerCrawl() // Generates random value and saves to fixture file
-      .saveAndStartActor() // Click "Save & Start" button
-      .waitForActorToComplete()
-      .exportResults()
-      .downloadResults()
-      .verifyDownloadedItemsCount() // Reads maxPages from fixture and compares with latest downloaded file
+      .setUrl('https://invalid') // Set invalid URL
+      .setGlob('https://invalid/*') // Set invalid Glob pattern
+      .startActor() // Start the actor
+      .verifyEmptyDatasetMessage() // Verify empty dataset message appears
+      // Navigate back to actor input page to restore values
+      .navigateToActorInput()
+      // Restore original values
+      .setUrl('https://crawlee.dev/js') // Restore original URL
+      .setGlob('https://crawlee.dev/js/*/*') // Restore original Glob
+      .saveConfiguration() // Save configuration
   })
 })
 
