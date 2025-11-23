@@ -234,10 +234,10 @@ class ConsolePage {
       
       console.log('✅ Export button is enabled')
       
-      // Wait longer to ensure all data is fully processed and saved to dataset
+      // Wait to ensure all data is fully processed and saved to dataset
       // The actor needs time to process all pages and save them to the dataset
-      console.log(`⏳ Waiting additional time for all ${expectedCount} items to be saved to dataset...`)
-      cy.wait(10000) // Increased wait time to ensure all pages are processed
+      console.log(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
+      cy.wait(10000)
       
       // Additional check: wait for dataset count indicator if available
       // Some UI elements might show dataset item count
@@ -250,7 +250,7 @@ class ConsolePage {
 
   /**
    * Export the results
-   * Waits for export button to be enabled and additional time for dataset to be fully saved
+   * Waits for export button to be enabled and ensures dataset is fully ready
    */
   exportResults() {
     console.log('📤 Starting export process')
@@ -270,16 +270,11 @@ class ConsolePage {
       
       console.log('✅ Export button is enabled')
       
-      // CRITICAL: Wait longer to ensure all data is fully processed and saved to dataset
+      // Wait to ensure all data is fully processed and saved to dataset
       // The actor needs time to process all pages and save them to the dataset
-      // This is especially important for higher maxPages values
-      console.log(`⏳ Waiting additional ${expectedCount * 2} seconds for all ${expectedCount} items to be saved to dataset...`)
-      cy.log(`⏳ Waiting for dataset to be fully saved (${expectedCount} items)...`)
-      cy.wait(expectedCount * 2000) // Wait 2 seconds per expected item (minimum 10 seconds)
-      
-      // Additional fixed wait to ensure stability
-      console.log('⏳ Final wait to ensure dataset stability...')
-      cy.wait(5000)
+      console.log(`⏳ Waiting 10 seconds for all ${expectedCount} items to be saved to dataset...`)
+      cy.log(`⏳ Waiting for dataset to be fully saved (${expectedCount} items, 10s)...`)
+      cy.wait(10000)
       
       // Click export button
       console.log('🖱️ Clicking "Export" button...')
