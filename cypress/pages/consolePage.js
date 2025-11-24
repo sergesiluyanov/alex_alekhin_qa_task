@@ -143,7 +143,6 @@ class ConsolePage {
 
   /**
    * Set max concurrency value
-   * @param {number} value - Max concurrency value (default: 1)
    */
   setMaxConcurrency(value = 1) {
     cy.logToConsole(`⚙️ Setting maxConcurrency to ${value}`)
@@ -515,7 +514,6 @@ class ConsolePage {
   /**
    * Verify that the run completes and returns dataset items on the page
    * Checks that results are visible and contain data
-   * @param {number} minItems - Minimum number of items to verify (default: 1)
    */
   verifyDatasetSchema(minItems = 1) {
     cy.logToConsole(`✅ Verifying dataset schema (minItems: ${minItems})`)
