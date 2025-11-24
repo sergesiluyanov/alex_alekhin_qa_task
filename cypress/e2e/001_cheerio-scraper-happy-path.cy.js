@@ -24,6 +24,8 @@ describe('Cheerio Scraper E2E Flow', () => {
       .openAdvancedConfiguration()
       .setMaxConcurrency(1) // Set maxConcurrency to 1 for valid results
       .setMaxPagesPerCrawl() // Generates random value and saves to fixture file
+      .setStartUrl('https://crawlee.dev/js') // Restore original startUrl
+      .setGlob('https://crawlee.dev/js/*/*') // Restore original Glob
       .saveAndStartActor() // Click "Save & Start" button
       .waitForActorToComplete()
       .exportResults()

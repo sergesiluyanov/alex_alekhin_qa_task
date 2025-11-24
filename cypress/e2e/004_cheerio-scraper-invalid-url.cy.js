@@ -29,7 +29,6 @@ describe('Cheerio Scraper E2E Flow', () => {
       .navigateToActorInput()
       // Restore original values
       .setStartUrl('https://crawlee.dev/js') // Restore original startUrl
-      .setUrl('https://crawlee.dev/js') // Restore original URL
       .setGlob('https://crawlee.dev/js/*/*') // Restore original Glob
       .saveConfiguration() // Save configuration
   })
